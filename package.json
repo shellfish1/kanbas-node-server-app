@@ -1,0 +1,19 @@
+{
+  "name": "kanbas-node-server-app",
+  "version": "1.0.0",
+  "description": "Node,js HTTP web server for the kanbas application ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shellfish1/kanbas-node-server-app.git"
+  },
+  "author": "Nikhil Manikonda",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shellfish1/kanbas-node-server-app/issues"
+  },
+  "homepage": "https://github.com/shellfish1/kanbas-node-server-app#readme"
+}
