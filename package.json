@@ -1,9 +1,11 @@
 {
+  "type": "module",
   "name": "kanbas-node-server-app",
   "version": "1.0.0",
   "description": "Node,js HTTP web server for the kanbas application ",
   "main": "index.js",
   "scripts": {
+    "start": "node App.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +17,9 @@
   "bugs": {
     "url": "https://github.com/shellfish1/kanbas-node-server-app/issues"
   },
-  "homepage": "https://github.com/shellfish1/kanbas-node-server-app#readme"
+  "homepage": "https://github.com/shellfish1/kanbas-node-server-app#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
 }
