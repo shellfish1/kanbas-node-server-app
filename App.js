@@ -14,4 +14,4 @@ Lab5(app);
 CourseRoutes(app);
 ModuleRoutes(app);
 AssignmentsRoutes(app);
-app.listen(4000)
+app.listen(process.env.PORT || 4000);
