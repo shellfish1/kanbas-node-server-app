@@ -1,5 +1,5 @@
 import  Database from "../Database/index.js";
-import {json} from "express";
+
 export default function CourseRoutes(app) {
 	app.get("/api/courses", (req, res) => {
 		const courses = Database.courses;
