@@ -3,7 +3,7 @@ import  Database from "../Database/index.js";
 export default function CourseRoutes(app) {
 	app.get("/api/courses", (req, res) => {
 		const courses = Database.courses;
-		console.log(JSON.stringify(courses))
+		// console.log(JSON.stringify(courses))
 		res.json(courses);
 	});
 	app.post("/api/courses", (req, res) => {

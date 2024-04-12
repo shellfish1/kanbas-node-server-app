@@ -20,6 +20,7 @@
   "homepage": "https://github.com/shellfish1/kanbas-node-server-app#readme",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "mongoose": "^8.3.1"
   }
 }
