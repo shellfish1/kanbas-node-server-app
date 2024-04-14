@@ -7,12 +7,32 @@ import cors from "cors";
 import AssignmentsRoutes from "./Kanbas/assignements/routes.js";
 import mongoose from "mongoose";
 import UserRoutes from "./Kanbas/users/routes.js";
+import session from "express-session";
+import "dotenv/config";
 
-const uri = "mongodb+srv://manikondanikhil:cs5600_1997@cs5610.kvkp5cw.mongodb.net/kanbas?retryWrites=true&w=majority&appName=cs5610";
+const uri = process.env.DB_CONNECTION_STRING;
 mongoose.connect(uri)
 console.log("Started")
 const app = express()
-app.use(cors());
+const sessionOptions = {
+	secret: process.env.SESSION_SECRET,
+	resave: false,
+	saveUninitialized: false,
+};
+if (process.env.NODE_ENV !== "development") {
+	sessionOptions.proxy = true;
+	sessionOptions.cookie = {
+		sameSite: "none",
+		secure: true,
+		domain: process.env.HTTP_SERVER_DOMAIN,
+	};
+}
+
+app.use(cors({
+	origin: process.env.FRONTEND_URL,
+	credentials: true,
+}))
+app.use(session(sessionOptions));
 app.use(express.json());
 Hello(app)
 Lab5(app);
