@@ -18,6 +18,12 @@ const sessionOptions = {
 	secret: process.env.SESSION_SECRET,
 	resave: false,
 	saveUninitialized: false,
+	proxy: true,
+	cookie: {
+		sameSite: "none",
+		secure: true,
+		domain: process.env.HTTP_SERVER_DOMAIN,
+	},
 };
 if (process.env.NODE_ENV !== "development") {
 	sessionOptions.proxy = true;
