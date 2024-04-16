@@ -27,20 +27,15 @@ export default function CourseRoutes(app) {
 	};
 	const findAllCourses = async (req, res) => {
 		const user = req.session["currentUser"]
-
+		const allCourses = await dao.findAllCourses()
 		if(user && (user.role === "ADMIN" || user.role === "TEACHER")){
-			const allCourses = await dao.findAllCourses()
 			res.json(allCourses)
-		}else if(user){
+		}else if(user && (user.role)){
 			const enrolledCourseIds = await enrollmentDao.findUserCourses(user._id)
-			console.log(`user ${user._id} has enrolled for courses ${enrolledCourseIds}`)
-			const enrolledCourses = await dao.findAllCourses()
-				.then((ans) => {
-					return ans.filter((c) => enrolledCourseIds.includes(c._id) )
-				})
+			const enrolledCourses = allCourses.filter((c) => enrolledCourseIds.includes(c._id.toString()))
 			res.json(enrolledCourses)
 		}else{
-			res.json([])
+			res.json(allCourses)
 		}
 	};
 	const findCourseById = async (req, res) => {

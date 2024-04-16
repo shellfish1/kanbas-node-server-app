@@ -18,13 +18,8 @@ const app = express()
 const sessionOptions = {
 	secret: process.env.SESSION_SECRET,
 	resave: false,
-	saveUninitialized: false,
-	proxy: true,
-	cookie: {
-		sameSite: "none",
-		secure: true,
-		domain: process.env.HTTP_SERVER_DOMAIN,
-	},
+	save: true,
+	saveUninitialized: false
 };
 if (process.env.NODE_ENV !== "development") {
 	sessionOptions.proxy = true;
@@ -47,5 +42,6 @@ CourseRoutes(app);
 ModuleRoutes(app);
 AssignmentsRoutes(app);
 UserRoutes(app);
+QuizRoutes(app);
 
 app.listen(process.env.PORT || 4000);
