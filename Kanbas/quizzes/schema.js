@@ -1,5 +1,4 @@
 import mongoose from "mongoose"
-import userSchema from "../users/schema.js";
 
 const questionSchema = new mongoose.Schema({
 	title: String,
@@ -21,6 +20,7 @@ const questionSchema = new mongoose.Schema({
 
 const quizSchema = new mongoose.Schema({
 	title: { type: String, required: true},
+	course: {type: String, required: true},
 	description: String,
 	points: { type: Number, required: true},
 	status: {

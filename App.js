@@ -47,6 +47,5 @@ CourseRoutes(app);
 ModuleRoutes(app);
 AssignmentsRoutes(app);
 UserRoutes(app);
-QuizRoutes(app)
 
 app.listen(process.env.PORT || 4000);
