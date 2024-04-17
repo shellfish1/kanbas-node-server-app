@@ -12,11 +12,11 @@ export default function QuizRoutes(app) {
 			const quiz = await dao.createQuiz({ ...req.body, course: courseId});
 			res.json(quiz);
 		}else if (user){
-			res.json({message: `Your role ${user.role} doesn't give you access to create quizzes`})
-				.status(403)
+			res.status(403).json({message: `Your role ${user.role} doesn't give you access to create quizzes`})
+
 		}else {
-			res.json({message: "Login before attempting the action"})
-				.status(403)
+			res.status(403).json({message: "Login before attempting the action"})
+
 		}
 		
 	};
@@ -48,11 +48,11 @@ export default function QuizRoutes(app) {
 			}
 
 		}else if(user){
-			res.json({message: `Your role ${user.role} doesn't give you access to create quiz questions`})
-				.status(403)
+			res.status(403).json({message: `Your role ${user.role} doesn't give you access to create quiz questions`})
+
 		}else {
-			res.json({message: "Login before attempting the action"})
-				.status(403)
+			res.status(403).json({message: "Login before attempting the action"})
+
 		}
 	};
 	const findAllQuizzes = async (req, res) => {
@@ -71,8 +71,8 @@ export default function QuizRoutes(app) {
 				.filter((q) => courseId === q.course)
 			res.json(courseQuizzes)
 		}else{
-			return res.json({message: "Login before attempting the action"})
-				.status(403)
+			return res.status(403).json({message: "Login before attempting the action"})
+
 		}
 	};
 	const findAllQuestions = async (req, res) => {
@@ -94,8 +94,8 @@ export default function QuizRoutes(app) {
 					.json("You cant perform the action on an unenrolled course")
 			}
 		} else {
-			res.json({message: "Login before attempting the action"})
-				.status(403)
+			res.status(403).json({message: "Login before attempting the action"})
+
 		}
 	};
 	const findQuizById = async (req, res) => {
@@ -118,8 +118,8 @@ export default function QuizRoutes(app) {
 					.json("You cant view a quiz from an unenrolled course")
 			}
 		}else{
-			res.json({message: "Login before attempting the action"})
-				.status(403)
+			res.status(403).json({message: "Login before attempting the action"})
+
 		}
 
 	};
@@ -155,11 +155,10 @@ export default function QuizRoutes(app) {
 					.json("You cant delete an unenrolled quiz")
 			}
 		}else if(user){
-			res.json({message: `Your role ${user.role} doesn't give you access to delete quiz`})
-				.status(403)
+			res.status(403).json({message: `Your role ${user.role} doesn't give you access to delete quiz`})
 		}else{
-			res.json({message: "Login before attempting the action"})
-				.status(403)
+			res.status(403).json({message: "Login before attempting the action"})
+
 		}
 
 	};
@@ -167,7 +166,7 @@ export default function QuizRoutes(app) {
 		const { courseId, quizId, questionId } = req.params
 		const quiz = await dao.findQuizById(quizId)
 			.catch((err)=>{
-				return res.json({ message: `Finding quiz ${quizId} failed`}).status(500)
+				return res.status(500).json({ message: `Finding quiz ${quizId} failed`})
 			})
 		const user = req.session["currentUser"]
 		const enrolledCourseIds = await enrollmentDao.findUserCourses(user._id)
@@ -178,14 +177,14 @@ export default function QuizRoutes(app) {
 				quiz.questions = quiz.questions.filter( (q) => q.id !== questionId)
 				await dao.updateQuiz(quizId, quiz)
 					.catch((err)=>{
-						return res.json({ message: `Deleting question ${questionId} from quiz ${quizId} failed`}).status(500)
+						return res.status(500).json({ message: `Deleting question ${questionId} from quiz ${quizId} failed`})
 					})
 
 				await dao.findAllQuestions(quizId).then( (ans) => {
 					return res.json(ans)
 				}).catch(
 					(err)=>{
-						return res.json({ message: `Deleting question ${questionId} from quiz ${quizId} failed`}).status(500)
+						return res.status(500).json({ message: `Deleting question ${questionId} from quiz ${quizId} failed`})
 					}
 				)
 			}else{
@@ -193,11 +192,11 @@ export default function QuizRoutes(app) {
 					.json("You cant delete an unenrolled quiz question")
 			}
 		}else if(user){
-			res.json({message: `Your role ${user.role} doesn't give you access to delete quiz question`})
-				.status(403)
+			res.status(403).json({message: `Your role ${user.role} doesn't give you access to delete quiz question`})
+
 		}else{
-			res.json({message: "Login before attempting the action"})
-				.status(403)
+			res.status(403).json({message: "Login before attempting the action"})
+
 		}
 	}
 
@@ -209,7 +208,7 @@ export default function QuizRoutes(app) {
 
 		const quiz = await dao.findQuizById(quizId)
 			.catch((err)=>{
-				return res.json({ message: `Finding quiz ${quizId} failed`}).status(500)
+				return res.status(500).json({ message: `Finding quiz ${quizId} failed`})
 			})
 		quiz.questions = quiz.questions.map( (q) => {
 			if (q.id !== questionId){
@@ -223,13 +222,13 @@ export default function QuizRoutes(app) {
 			if(enrolledCourseIds.includes(quiz.course) && quiz.course === courseId){
 				await dao.updateQuiz(quizId, quiz)
 					.catch((err)=>{
-						return res.json({ message: `Updating question ${questionId} from quiz ${quizId} failed`}).status(500)
+						return res.status(500).json({ message: `Updating question ${questionId} from quiz ${quizId} failed`})
 					})
 				await dao.findAllQuestions(quizId).then( (ans) => {
 					return res.json(ans.find((q) => q.id === questionId))
 				}).catch(
 					(err)=>{
-						return res.json({ message: `Updating question ${questionId} from quiz ${quizId} failed`}).status(500)
+						return res.status(500).json({ message: `Updating question ${questionId} from quiz ${quizId} failed`})
 					}
 				)
 			}else{
@@ -237,11 +236,9 @@ export default function QuizRoutes(app) {
 					.json("You cant update an unenrolled quiz question")
 			}
 		}else if(user){
-			res.json({message: `Your role ${user.role} doesn't give you access to update quiz question`})
-				.status(403)
+			res.status(403).json({message: `Your role ${user.role} doesn't give you access to update quiz question`})
 		}else{
-			res.json({message: "Login before attempting the action"})
-				.status(403)
+			res.status(403).json({message: "Login before attempting the action"})
 		}
 	}
 
@@ -250,14 +247,13 @@ export default function QuizRoutes(app) {
 		const user = req.session["currentUser"]
 		const enrolledCourseIds = await enrollmentDao.findUserCourses(user._id)
 		const quiz = await dao.findQuizById(quizId)
+			.exec()
 			.catch((err)=>{
 				return res.json({ message: `Finding quiz ${quizId} failed`}).status(500)
 			})
-		const course = quiz.course
 		const updatedQuiz = {...quiz, ...req.body}
-
 		if(user && (user.role === "ADMIN" || user.role === "TEACHER")){
-			if(enrolledCourseIds.includes(quiz.course) && quiz.course === courseId){
+			if(enrolledCourseIds.includes(courseId)){
 				await dao.updateQuiz(quizId, updatedQuiz)
 					.then( () => {
 						res.status(200);
@@ -274,11 +270,10 @@ export default function QuizRoutes(app) {
 					.json("You cant update an unenrolled quiz")
 			}
 		}else if(user){
-			res.json({message: `Your role ${user.role} doesn't give you access to update quiz`})
-				.status(403)
+			res.status(403).json({message: `Your role ${user.role} doesn't give you access to update quiz`})
+
 		}else{
-			res.json({message: "Login before attempting the action"})
-				.status(403)
+			res.status(403).json({message: "Login before attempting the action"})
 		}
 	};
 

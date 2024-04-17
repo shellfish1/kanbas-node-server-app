@@ -97,8 +97,8 @@ export default function CourseRoutes(app) {
 			res.status(403).json({message: `Your role ${user.role} doesn't give you access to Update course`})
 
 		}else{
-			res.json({message: "Login before attempting the action"})
-				.status(403)
+			res.status(403).json({message: "Login before attempting the action"})
+
 		}
 
 	}
