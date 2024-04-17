@@ -5,10 +5,11 @@ import mongoose from "mongoose";
 export default function QuizRoutes(app) {
 
 	const createQuiz = async (req, res) => {
+		const { courseId } = req.params
 		const user = req.session["currentUser"]
 		
 		if(user && (user.role === "TEACHER" || user.role === "ADMIN")){
-			const quiz = await dao.createQuiz(req.body);
+			const quiz = await dao.createQuiz({ ...req.body, course: courseId});
 			res.json(quiz);
 		}else if (user){
 			res.json({message: `Your role ${user.role} doesn't give you access to create quizzes`})
@@ -20,7 +21,7 @@ export default function QuizRoutes(app) {
 		
 	};
 	const createQuestion = async (req, res) => {
-		const {quizId} = req.params
+		const {courseId, quizId} = req.params
 		const user = req.session["currentUser"]
 
 		const question = { ...req.body, id: new mongoose.mongo.ObjectId().toString() }
@@ -57,20 +58,25 @@ export default function QuizRoutes(app) {
 	const findAllQuizzes = async (req, res) => {
 		const quizzes = await dao.findAllQuizzes();
 		const user = req.session["currentUser"]
+		const { courseId } = req.params
 
 		if(user && (user.role === "ADMIN")){
-			res.json(quizzes)
+			const courseQuizzes = quizzes
+				.filter((q) => courseId === q.course)
+			res.json(courseQuizzes)
 		}else if(user){
 			const enrolledCourseIds = await enrollmentDao.findUserCourses(user._id)
-			const enrolledQuizzes = quizzes.filter((q) => enrolledCourseIds.includes(q.course))
-			res.json(enrolledQuizzes)
+			const courseQuizzes = quizzes
+				.filter((q) => enrolledCourseIds.includes(q.course))
+				.filter((q) => courseId === q.course)
+			res.json(courseQuizzes)
 		}else{
 			return res.json({message: "Login before attempting the action"})
 				.status(403)
 		}
 	};
 	const findAllQuestions = async (req, res) => {
-		const {quizId} = req.params
+		const {courseId, quizId} = req.params
 		const user = req.session["currentUser"]
 		const enrolledCourseIds = await enrollmentDao.findUserCourses(user._id)
 		const quiz = await dao.findQuizById(quizId)
@@ -81,7 +87,7 @@ export default function QuizRoutes(app) {
 		if(user && user.role === "ADMIN"){
 			return res.json(quiz.questions)
 		}else if( user ){
-			if(enrolledCourseIds.includes(quiz.course)){
+			if(enrolledCourseIds.includes(quiz.course) && quiz.course === courseId){
 				return res.json(quiz.questions)
 			}else{
 				return res.status(403)
@@ -93,7 +99,7 @@ export default function QuizRoutes(app) {
 		}
 	};
 	const findQuizById = async (req, res) => {
-		const { quizId } = req.params;
+		const { courseId, quizId } = req.params;
 		const quiz = await dao.findQuizById(quizId)
 				.catch(err => {
 					return res.status(500)
@@ -105,7 +111,7 @@ export default function QuizRoutes(app) {
 		if(user && user.role === "ADMIN"){
 			return res.json(quiz)
 		}else if(user){
-			if(enrolledCourseIds.includes(quiz.course)){
+			if(enrolledCourseIds.includes(quiz.course) && quiz.course === courseId){
 				return res.json(quiz)
 			}else{
 				return res.status(403)
@@ -118,7 +124,7 @@ export default function QuizRoutes(app) {
 
 	};
 	const findQuestionById = async (req, res) => {
-		const { quizId, questionId } = req.params;
+		const { courseId, quizId, questionId } = req.params;
 		await dao.findQuestionById(quizId, questionId)
 			.then( question => res.json(question) )
 			.catch(err => {
@@ -127,7 +133,7 @@ export default function QuizRoutes(app) {
 			});
 	}
 	const deleteQuiz = async (req, res) => {
-		const { quizId } = req.params;
+		const { courseId, quizId } = req.params;
 		const quiz = await dao.findQuizById(quizId)
 			.catch(err => {
 				return res.status(500)
@@ -137,7 +143,7 @@ export default function QuizRoutes(app) {
 		const enrolledCourseIds = await enrollmentDao.findUserCourses(user._id)
 
 		if(user && (user.role === "ADMIN" || user.role === "TEACHER")){
-			if(enrolledCourseIds.includes(quiz.course)){
+			if(enrolledCourseIds.includes(quiz.course) && quiz.course === courseId){
 				await dao.deleteQuiz(quizId).then(() => {
 					return res.status(204)
 				}).catch((err) => {
@@ -158,7 +164,7 @@ export default function QuizRoutes(app) {
 
 	};
 	const deleteQuestion = async (req, res) => {
-		const { quizId, questionId } = req.params
+		const { courseId, quizId, questionId } = req.params
 		const quiz = await dao.findQuizById(quizId)
 			.catch((err)=>{
 				return res.json({ message: `Finding quiz ${quizId} failed`}).status(500)
@@ -168,7 +174,7 @@ export default function QuizRoutes(app) {
 
 
 		if(user && (user.role === "ADMIN" || user.role === "TEACHER")){
-			if(enrolledCourseIds.includes(quiz.course)){
+			if(enrolledCourseIds.includes(quiz.course)  && quiz.course === courseId ){
 				quiz.questions = quiz.questions.filter( (q) => q.id !== questionId)
 				await dao.updateQuiz(quizId, quiz)
 					.catch((err)=>{
@@ -196,7 +202,7 @@ export default function QuizRoutes(app) {
 	}
 
 	const updateQuestion = async (req, res) => {
-		const { quizId, questionId } = req.params;
+		const { courseId, quizId, questionId } = req.params;
 		const updatedQuestion = { ...req.body, id: questionId }
 		const user = req.session["currentUser"]
 		const enrolledCourseIds = await enrollmentDao.findUserCourses(user._id)
@@ -214,7 +220,7 @@ export default function QuizRoutes(app) {
 		})
 
 		if(user && (user.role === "ADMIN" || user.role === "TEACHER")){
-			if(enrolledCourseIds.includes(quiz.course)){
+			if(enrolledCourseIds.includes(quiz.course) && quiz.course === courseId){
 				await dao.updateQuiz(quizId, quiz)
 					.catch((err)=>{
 						return res.json({ message: `Updating question ${questionId} from quiz ${quizId} failed`}).status(500)
@@ -240,7 +246,7 @@ export default function QuizRoutes(app) {
 	}
 
 	const updateQuiz = async (req, res) => {
-		const { quizId } = req.params;
+		const { courseId, quizId } = req.params;
 		const user = req.session["currentUser"]
 		const enrolledCourseIds = await enrollmentDao.findUserCourses(user._id)
 		const quiz = await dao.findQuizById(quizId)
@@ -251,7 +257,7 @@ export default function QuizRoutes(app) {
 		const updatedQuiz = {...quiz, ...req.body}
 
 		if(user && (user.role === "ADMIN" || user.role === "TEACHER")){
-			if(enrolledCourseIds.includes(quiz.course)){
+			if(enrolledCourseIds.includes(quiz.course) && quiz.course === courseId){
 				await dao.updateQuiz(quizId, updatedQuiz)
 					.then( () => {
 						res.status(200);
@@ -276,14 +282,14 @@ export default function QuizRoutes(app) {
 		}
 	};
 
-	app.post("/api/quizzes", createQuiz);
-	app.post("/api/quizzes/:quizId/questions", createQuestion);
-	app.get("/api/quizzes", findAllQuizzes);
-	app.get("/api/quizzes/:quizId", findQuizById);
-	app.delete("/api/quizzes/:quizId", deleteQuiz);
-	app.delete("/api/quizzes/:quizId/questions/:questionId", deleteQuestion);
-	app.put("/api/quizzes/:quizId", updateQuiz);
-	app.get("/api/quizzes/:quizId/questions", findAllQuestions)
-	app.get("/api/quizzes/:quizId/questions/:questionId", findQuestionById)
-	app.put("/api/quizzes/:quizId/questions/:questionId", updateQuestion)
+	app.post("/api/courses/:courseId/quizzes", createQuiz);
+	app.post("/api/courses/:courseId/quizzes/:quizId/questions", createQuestion);
+	app.get("/api/courses/:courseId/quizzes", findAllQuizzes);
+	app.get("/api/courses/:courseId/quizzes/:quizId", findQuizById);
+	app.delete("/api/courses/:courseId/quizzes/:quizId", deleteQuiz);
+	app.delete("/api/courses/:courseId/quizzes/:quizId/questions/:questionId", deleteQuestion);
+	app.put("/api/courses/:courseId/quizzes/:quizId", updateQuiz);
+	app.get("/api/courses/:courseId/quizzes/:quizId/questions", findAllQuestions)
+	app.get("/api/courses/:courseId/quizzes/:quizId/questions/:questionId", findQuestionById)
+	app.put("/api/courses/:courseId/quizzes/:quizId/questions/:questionId", updateQuestion)
 }

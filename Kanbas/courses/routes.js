@@ -94,8 +94,8 @@ export default function CourseRoutes(app) {
 					.json({message: `Unable to find an enrollment for the course ${id}`})
 			}
 		} else if(user){
-			res.json({message: `Your role ${user.role} doesn't give you access to Update course`})
-				.status(403)
+			res.status(403).json({message: `Your role ${user.role} doesn't give you access to Update course`})
+
 		}else{
 			res.json({message: "Login before attempting the action"})
 				.status(403)
