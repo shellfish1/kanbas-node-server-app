@@ -270,7 +270,8 @@ export default function QuizRoutes(app) {
 					.json("You cant update an unenrolled quiz")
 			}
 		}else if(user){
-			res.status(403).json({message: `Your role ${user.role} doesn't give you access to update quiz`})
+			console.log("I AM HERE 1")
+			return res.status(403).json({message: `Your role ${user.role} doesn't give you access to update quiz`})
 
 		}else{
 			res.status(403).json({message: "Login before attempting the action"})
