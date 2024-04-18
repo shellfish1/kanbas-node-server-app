@@ -34,8 +34,15 @@ const quizSchema = new mongoose.Schema({
 	points: { type: Number, required: true},
 	status: {
 		type: String,
-		enum: [ "Published", "Unpublished", "Deleted" ],
-		required: true
+		enum: [ "Published", "Unpublished" ],
+		required: true,
+		default: "Unpublished"
+	},
+	assignment_group: {
+		type: String,
+		required: true,
+		enum: ["Quizzes", "Assignments", "Projects", "Exams"],
+		default: "Quizzes"
 	},
 	quiz_type: {
 		type: String,
@@ -65,7 +72,7 @@ const quizSchema = new mongoose.Schema({
 	},
 	duration: {
 		type: Number,
-		required: false,
+		required: true,
 		default: 20
 	},
 	attempts: {
@@ -75,18 +82,28 @@ const quizSchema = new mongoose.Schema({
 	},
 	access_code: {
 		type: String,
-		required: false,
+		required: true,
 		default : ""
 	},
 	webcam_required: {
 		type: Boolean,
 		default: false,
-		required: false
+		required: true
 	},
 	lock_questions : {
 		type: Boolean,
 		default: false,
-		required: false
+		required: true
+	},
+	one_question_at_time: {
+		type: Boolean,
+		default: true,
+		required: true
+	},
+	show_correct_answers: {
+		type: Boolean,
+		default: false,
+		required: true
 	},
 	questions: [questionSchema]
 }, { collection: "quizzes", strict: false })

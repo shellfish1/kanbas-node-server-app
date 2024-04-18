@@ -100,27 +100,30 @@ export default function QuizRoutes(app) {
 	};
 	const findQuizById = async (req, res) => {
 		const { courseId, quizId } = req.params;
-		const quiz = await dao.findQuizById(quizId)
-				.catch(err => {
-					return res.status(500)
-						.json({ message: `Unable to find Quiz with ID ${quizId}` });
-				});
+
 		const user = req.session["currentUser"]
 		const enrolledCourseIds = await enrollmentDao.findUserCourses(user._id)
 
-		if(user && user.role === "ADMIN"){
-			return res.json(quiz)
-		}else if(user){
-			if(enrolledCourseIds.includes(quiz.course) && quiz.course === courseId){
-				return res.json(quiz)
-			}else{
-				return res.status(403)
-					.json("You cant view a quiz from an unenrolled course")
-			}
-		}else{
-			res.status(403).json({message: "Login before attempting the action"})
+		await dao.findQuizById(quizId)
+			.then((quiz)=>{
+				if(user && user.role === "ADMIN"){
+					return res.status(200).send(quiz)
+				}else if(user){
+					if(enrolledCourseIds.includes(quiz.course) && quiz.course === courseId){
+						return res.status(200).json(quiz)
+					}else{
+						return res.status(403)
+							.json({ message: "You cant view a quiz from an unenrolled course"})
+					}
+				}else{
+					res.status(403).json({message: "Login before attempting the action"})
 
-		}
+				}
+			})
+			.catch(err => {
+				return res.status(500)
+					.json({ message: `Unable to find Quiz with ID ${quizId}` });
+			});
 
 	};
 	const findQuestionById = async (req, res) => {
@@ -247,7 +250,6 @@ export default function QuizRoutes(app) {
 		const user = req.session["currentUser"]
 		const enrolledCourseIds = await enrollmentDao.findUserCourses(user._id)
 		const quiz = await dao.findQuizById(quizId)
-			.exec()
 			.catch((err)=>{
 				return res.json({ message: `Finding quiz ${quizId} failed`}).status(500)
 			})
@@ -255,15 +257,13 @@ export default function QuizRoutes(app) {
 		if(user && (user.role === "ADMIN" || user.role === "TEACHER")){
 			if(enrolledCourseIds.includes(courseId)){
 				await dao.updateQuiz(quizId, updatedQuiz)
-					.then( () => {
-						res.status(200);
-					}).catch((err) => {
-						return res.json({ message: `Updating quiz ${quizId} failed`}).status(500)
+					.catch((err) => {
+						return res.status(500).json({ message: `Updating quiz ${quizId} failed`})
 					})
 				await dao.findQuizById(quizId).then( (ans) => {
-					res.json(ans)
+					return res.send(ans)
 				}).catch((err) => {
-					return res.json({ message:  `Updating quiz ${quizId} failed`}).status(500)
+					return res.status(200).json({ message:  `Updating quiz ${quizId} failed`}).status(500)
 				})
 			}else{
 				return res.status(403)
