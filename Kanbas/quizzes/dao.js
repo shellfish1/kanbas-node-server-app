@@ -25,7 +25,7 @@ export const findAllQuestions = (quizId) => {
 		}else{
 			return []
 		}
-	}).lean();
+	})
 }
 export const updateQuestion = (quizId, questionId, updatedQuestion) => {
 
