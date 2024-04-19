@@ -15,7 +15,7 @@ export const updateQuiz = (_id, quiz) =>{
 
 export const findQuestionById = (quizId, questionId) => {
 	return model.findById(quizId).then( quiz => {
-		return quiz.questions.find( q => q.id === questionId).lean();
+		return quiz.questions.find( q => q.id === questionId);
 	})
 }
 export const findAllQuestions = (quizId) => {

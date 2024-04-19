@@ -1,5 +1,14 @@
-import mongoose from "mongoose"
-
+import mongoose, {Schema} from "mongoose"
+const optionSchema = new Schema({
+	key: {
+		required: true,
+		type: String
+	},
+	value: {
+		required: true,
+		type: String
+	}
+})
 const questionSchema = new mongoose.Schema({
 	title: String,
 	id: {
@@ -14,11 +23,11 @@ const questionSchema = new mongoose.Schema({
 	question: String,
 	points: Number,
 	options: {
-		type: [String],
+		type: [optionSchema],
 		required: false
 	},
-	correctAnswer: {
-		type: String,
+	correctAnswers: {
+		type: [String],
 		required: false
 	},
 	possibleAnswers: {

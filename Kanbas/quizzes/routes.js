@@ -41,7 +41,7 @@ export default function QuizRoutes(app) {
 				});
 				return dao.findQuestionById(quizId, question.id)
 					.then(q => res.json(q))
-					.catch( (err) => res.status(500).message({message: `Some issue happened : ${err.message}`}))
+					.catch( (err) => res.status(500).json({message: `Some issue happened : ${err.message}`}))
 			}else{
 				res.status(403)
 					.json("You cant perform the action on an unenrolled course")
