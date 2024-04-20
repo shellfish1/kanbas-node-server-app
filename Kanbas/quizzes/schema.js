@@ -91,7 +91,6 @@ const quizSchema = new mongoose.Schema({
 	},
 	access_code: {
 		type: String,
-		required: true,
 		default : ""
 	},
 	webcam_required: {
