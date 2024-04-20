@@ -148,8 +148,10 @@ export default function QuizRoutes(app) {
 		if(user && (user.role === "ADMIN" || user.role === "TEACHER")){
 			if(enrolledCourseIds.includes(quiz.course) && quiz.course === courseId){
 				await dao.deleteQuiz(quizId).then(() => {
-					return res.status(204)
+					console.log("Deleted Quiz")
+					return res.status(204).json({message: "Successfully deleted"})
 				}).catch((err) => {
+					console.log("Deleted Quiz fail 1111")
 					return res.status(404)
 						.json({ message: err.message})
 				})
@@ -163,7 +165,6 @@ export default function QuizRoutes(app) {
 			res.status(403).json({message: "Login before attempting the action"})
 
 		}
-
 	};
 	const deleteQuestion = async (req, res) => {
 		const { courseId, quizId, questionId } = req.params
